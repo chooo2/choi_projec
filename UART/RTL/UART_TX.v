@@ -130,19 +130,19 @@ module UART_TX#(
         case(curr_state)
             IDLE:
                 begin
-                    r_tx <= 1;
+                    r_tx = 1;
                 end
             START:
                 begin
-                    r_tx <= 0;
+                    r_tx = 0;
                 end
             DATA:
                 begin
-                    r_tx <= memory[tx_cnt];
+                    r_tx = memory[tx_cnt];
                 end
             STOP:
                 begin
-                    r_tx <= 1;
+                    r_tx = 1;
                 end
         endcase
     end
