@@ -64,7 +64,7 @@ module APB_UART#(
         .ready_out                  (n_rx_r         ),
         .valid_out                  (n_rx_v         ),
         .uart_irq                   (uart_irq       ),
-        .rx_data                    (rx_data        ),
+        .rx_data                    (rx_data        )
     );
 
     TX_WRITE#(
