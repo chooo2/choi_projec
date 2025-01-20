@@ -126,30 +126,25 @@ module UART_TX#(
         end
     end
     // Determine output data
-    always @(posedge sys_clk or negedge rstn) begin
-        if(!rstn) begin
-            r_tx <= 1;
-        end
-        else begin
-            case(curr_state)
-                IDLE:
-                    begin
-                        r_tx <= 1;
-                    end
-                START:
-                    begin
-                        r_tx <= 0;
-                    end
-                DATA:
-                    begin
-                        r_tx <= memory[tx_cnt];
-                    end
-                STOP:
-                    begin
-                        r_tx <= 1;
-                    end
-            endcase
-        end
+    always @(*) begin
+        case(curr_state)
+            IDLE:
+                begin
+                    r_tx <= 1;
+                end
+            START:
+                begin
+                    r_tx <= 0;
+                end
+            DATA:
+                begin
+                    r_tx <= memory[tx_cnt];
+                end
+            STOP:
+                begin
+                    r_tx <= 1;
+                end
+        endcase
     end
     // Determine tx done
     always @(posedge sys_clk or negedge rstn) begin
