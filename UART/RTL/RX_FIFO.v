@@ -21,7 +21,7 @@ module RX_FIFO#(
     reg                             wr_en_posedge;
 
     assign rd_data = r_rd_data;
-    assign full = (memory[31] == (0 || 1));
+    assign full = ~empty;
     assign empty = (wr_ptr == rd_ptr);
 
     // Write
