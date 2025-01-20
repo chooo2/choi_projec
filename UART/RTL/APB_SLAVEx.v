@@ -40,7 +40,6 @@ module APB_SLAVEx#(
     assign prdata = rd_buff;
     assign pslverr = 1'b1;  // default for a while
     assign rx_ready = r_rx_ready;
-    assign tx_ready = r_tx_ready;
     assign tx_valid = r_tx_valid;
     assign rx_data = r_rx_data;
     assign tx_data = r_tx_data;
