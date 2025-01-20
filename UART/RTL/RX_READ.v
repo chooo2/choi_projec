@@ -47,7 +47,7 @@ module RX_READ#(
     );
 
     READ_BUFF#(
-        .DATA_WIDTH                 (DATA_WIDTH     ),
+        .DATA_WIDTH                 (DATA_WIDTH     )
     )RX2(
         .clk                        (clk            ),
         .rstn                       (rstn           ),
