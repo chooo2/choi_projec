@@ -139,7 +139,7 @@ module APB_SLAVEx#(
             apb_memory_empty <= 1;
         end
         else begin
-            if(!(wr_ptr == rd_ptr)) begin
+            if(!(rx_ptr == tx_ptr)) begin
                 apb_memory_empty <= 0;
             end
             else begin
