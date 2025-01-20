@@ -9,6 +9,9 @@
 ##### RX
 ![image](https://github.com/user-attachments/assets/88d52714-febe-46ac-bd18-5a500c3c9fd0)
 
+##### TX
+![image](https://github.com/user-attachments/assets/48f79d09-21c5-406c-b1b4-b472c7dc447e)
+
 #### Synthesis
 ![image](https://github.com/user-attachments/assets/dde3df49-3219-4adf-b00c-7b48e7aa4f7e)
 
