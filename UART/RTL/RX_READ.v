@@ -11,7 +11,7 @@ module RX_READ#(
     input                           ready_out,
     output wire                     valid_out,
     output wire                     uart_irq,
-    output wire [DATA_WIDTH-1:0]    rx_data,
+    output wire [DATA_WIDTH-1:0]    rx_data
 );
     wire [DATA_WIDTH-1:0] n_uart_fifo, n_fifo_buff;
     wire n_empty;
