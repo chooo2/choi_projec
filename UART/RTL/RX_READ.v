@@ -19,7 +19,6 @@ module RX_READ#(
     wire n_rd_en;
 
     UART_RX#(
-        .ADDR_WIDTH                 (ADDR_WIDTH     ),
         .DATA_WIDTH                 (DATA_WIDTH     ),
         .BAUDRATE                   (BAUDRATE       ),
         .CLK_FREQ_MHZ               (CLK_FREQ_MHZ   )
