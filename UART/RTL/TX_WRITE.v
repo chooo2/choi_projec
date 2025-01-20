@@ -8,7 +8,7 @@ module TX_WRITE#(
     input                           clk,
     input                           rstn,
     input                           valid_in,
-    input                           ready_in,
+    output wire                     ready_in,
     input [DATA_WIDTH-1:0]          tx_data,
     output wire                     tx
 );
@@ -22,28 +22,28 @@ module TX_WRITE#(
     WRITE_BUFF#(
         .DATA_WIDTH                 (DATA_WIDTH     )
     )TX0(
-    .clk                            (clk            ),
-    .rstn                           (rstn           ),
-    .data_i                         (tx_data        ),
-    .data_o                         (n_buff_fifo    ),
-    .valid_in                       (valid_in       ),
-    .ready_in                       (ready_in       ),
-    .ready_out                      (not_fifo_empty ),
-    .valid_out                      (n_wr_en        )
+        .clk                        (clk            ),
+        .rstn                       (rstn           ),
+        .data_i                     (tx_data        ),
+        .data_o                     (n_buff_fifo    ),
+        .valid_in                   (valid_in       ),
+        .ready_in                   (ready_in       ),
+        .ready_out                  (not_fifo_empty ),
+        .valid_out                  (n_wr_en        )
     );
 
     TX_FIFO#(
         .ADDR_WIDTH                 (ADDR_WIDTH     ),
         .DATA_WIDTH                 (DATA_WIDTH     )
     )TX1(
-    .clk                            (clk            ),
-    .rstn                           (rstn           ),
-    .wr_en                          (n_wr_en        ),
-    .rd_en                          (not_tx_busy    ),
-    .wr_data                        (n_buff_fifo    ),
-    .rd_data                        (n_fifo_uart    ),
-    .full                           (/* nc */       ),
-    .empty                          (fifo_empty     )
+        .clk                        (clk            ),
+        .rstn                       (rstn           ),
+        .wr_en                      (n_wr_en        ),
+        .rd_en                      (not_tx_busy    ),
+        .wr_data                    (n_buff_fifo    ),
+        .rd_data                    (n_fifo_uart    ),
+        .full                       (/* nc */       ),
+        .empty                      (fifo_empty     )
     );
 
     UART_TX#(
@@ -51,13 +51,13 @@ module TX_WRITE#(
         .BAUDRATE                   (BAUDRATE       ),
         .CLK_FREQ_MHZ               (CLK_FREQ_MHZ   )
     )TX2(
-    .clk                            (clk            ),
-    .rstn                           (rstn           ),
-    .start                          (tx_start       ),
-    .data_i                         (n_fifo_uart    ),
-    .tx                             (tx             ),
-    .tx_busy                        (tx_busy        ),
-    .tx_done                        (/* nc */       )
+        .clk                        (clk            ),
+        .rstn                       (rstn           ),
+        .start                      (tx_start       ),
+        .data_i                     (n_fifo_uart    ),
+        .tx                         (tx             ),
+        .tx_busy                    (tx_busy        ),
+        .tx_done                    (/* nc */       )
     );
 
 endmodule
