@@ -5,9 +5,12 @@
 #### Module 
 ![image](https://github.com/user-attachments/assets/acf633e9-5198-461e-a424-dcba09c9513f)
 
+#### Simulation
+##### RX
 
 
 #### Synthesis
+![image](https://github.com/user-attachments/assets/88d52714-febe-46ac-bd18-5a500c3c9fd0)
 
 
 
