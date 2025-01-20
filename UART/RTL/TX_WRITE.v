@@ -10,12 +10,17 @@ module TX_WRITE#(
     input                           valid_in,
     input                           ready_in,
     input [DATA_WIDTH-1:0]          tx_data,
-    output wire                     tx,
+    output wire                     tx
 );
     wire [DATA_WIDTH-1:0] n_fifo_uart, n_buff_fifo;
+    wire not_fifo_empty = ~fifo_empty;
+    wire n_wr_en;
+    wire tx_busy;
+    wire not_tx_busy = ~tx_busy;
+    wire tx_start = ((not_fifo_empty) && (not_tx_busy));
 
     WRITE_BUFF#(
-        .DATA_WIDTH                 (DATA_WIDTH0    )
+        .DATA_WIDTH                 (DATA_WIDTH     )
     )TX0(
     .clk                            (clk            ),
     .rstn                           (rstn           ),
@@ -23,9 +28,8 @@ module TX_WRITE#(
     .data_o                         (n_buff_fifo    ),
     .valid_in                       (valid_in       ),
     .ready_in                       (ready_in       ),
-    .ready_out                      (),
-    .valid_out                      (),
-    .start                          ()
+    .ready_out                      (not_fifo_empty ),
+    .valid_out                      (n_wr_en        )
     );
 
     TX_FIFO#(
@@ -34,12 +38,12 @@ module TX_WRITE#(
     )TX1(
     .clk                            (clk            ),
     .rstn                           (rstn           ),
-    .wr_en                          (),
-    .rd_en                          (),
+    .wr_en                          (n_wr_en        ),
+    .rd_en                          (not_tx_busy    ),
     .wr_data                        (n_buff_fifo    ),
     .rd_data                        (n_fifo_uart    ),
-    .full                           (),
-    .empty                          ()
+    .full                           (/* nc */       ),
+    .empty                          (fifo_empty     )
     );
 
     UART_TX#(
@@ -49,11 +53,11 @@ module TX_WRITE#(
     )TX2(
     .clk                            (clk            ),
     .rstn                           (rstn           ),
-    .start                          (),
+    .start                          (tx_start       ),
     .data_i                         (n_fifo_uart    ),
     .tx                             (tx             ),
-    .tx_busy                        (),
-    .tx_done                        ()
-    ) b ;
+    .tx_busy                        (tx_busy        ),
+    .tx_done                        (/* nc */       )
+    );
 
 endmodule
