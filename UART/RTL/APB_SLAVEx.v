@@ -29,7 +29,6 @@ module APB_SLAVEx#(
     reg [DATA_WIDTH-1:0] rd_buff;
     reg r_rx_ready;
     reg r_tx_valid;
-    reg [DATA_WIDTH-1:0] r_rx_data;
     reg [DATA_WIDTH-1:0] r_tx_data;
     reg [PTR_WIDTH:0] rx_ptr;
     reg [PTR_WIDTH:0] tx_ptr;
@@ -41,7 +40,6 @@ module APB_SLAVEx#(
     assign pslverr = 1'b1;  // default for a while
     assign rx_ready = r_rx_ready;
     assign tx_valid = r_tx_valid;
-    assign rx_data = r_rx_data;
     assign tx_data = r_tx_data;
 
     // Opertion with Master //
