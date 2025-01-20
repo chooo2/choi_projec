@@ -9,7 +9,7 @@ module RX_READ#(
     input                           rstn,
     input                           rx,
     input                           ready_out,
-    output wire                     valid_out
+    output wire                     valid_out,
     output wire                     uart_irq,
     output wire [DATA_WIDTH-1:0]    rx_data,
 );
