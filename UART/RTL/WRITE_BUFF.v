@@ -8,8 +8,7 @@ module WRITE_BUFF#(
     input valid_in,
     output wire ready_in,
     input ready_out,
-    output wire valid_out,
-    input start
+    output wire valid_out
 );
     // Determine paramter //
     wire handshake_in = valid_in & ready_in;
