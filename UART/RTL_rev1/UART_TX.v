@@ -9,8 +9,8 @@ module UART_TX#(
     input clk,
     input rstn,
     input start,
-    input [7:0] data_i,
-//    input [2:0] ck_data,
+//    input [7:0] data_i,
+    input [2:0] ck_data,
     output wire tx,
     output wire tx_busy,
     output wire tx_done
@@ -21,11 +21,11 @@ module UART_TX#(
     localparam DATA = 2'b10;
     localparam STOP = 2'b11;
     
-//    wire [7:0] data_i;
+    wire [7:0] data_i;
     
-//    assign data_i = (ck_data == 3'b100) ? 8'h65 : 
-//                              (ck_data == 3'b010 ? 8'h66 : 
-//                              (ck_data == 3'b001 ? 8'h67 : 8'h0));
+    assign data_i = (ck_data == 3'b100) ? 8'h65 : 
+                              (ck_data == 3'b010 ? 8'h66 : 
+                              (ck_data == 3'b001 ? 8'h67 : 8'h0));
     
     
     reg [1:0] curr_state;
