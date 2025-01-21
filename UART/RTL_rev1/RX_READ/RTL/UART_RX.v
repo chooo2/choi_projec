@@ -11,7 +11,7 @@ module UART_RX#(
     input rx,
     output wire [DATA_WIDTH-1:0] data_o,
     output wire rx_done,
-    output wire rx_busy,
+    output wire rx_busy
     //output wire [3:0] check
 );
     // Define parameter //
