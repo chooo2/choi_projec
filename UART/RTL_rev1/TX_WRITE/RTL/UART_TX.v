@@ -1,3 +1,142 @@
+/*
+module UART_RX#(
+    parameter DATA_WIDTH = 8,
+    parameter DATA_WIDTH_WIDTH = $clog2(DATA_WIDTH),
+    parameter BAUDRATE = 9600,
+    parameter CLK_FREQ_MHZ = 125,
+    // parameter BAUDRATE_COUNT = CLK_FREQ_MHZ * 1_000_000 / (BAUDRATE * 16),
+    parameter BAUDRATE_COUNT = CLK_FREQ_MHZ * 1_000_000 / (BAUDRATE * 2),
+    parameter BAUDRATE_WIDTH = $clog2(BAUDRATE_COUNT)
+)(
+    input clk,
+    input rstn,
+    input rx,
+    output wire [DATA_WIDTH-1:0] data_o,
+    output wire rx_done,
+    output wire rx_busy
+);
+    // Define parameter //
+    localparam IDLE = 2'b00;
+    localparam START= 2'b01;
+    localparam DATA = 2'b10;
+    localparam STOP = 2'b11;
+    
+    reg [1:0] curr_state;
+    reg [1:0] next_state;
+    reg [DATA_WIDTH-1:0] memory;
+    reg [DATA_WIDTH_WIDTH-1:0] rx_cnt;
+    reg r_rx_done;
+    reg [BAUDRATE_WIDTH:0] baud_cnt;
+    reg r_rx_done_delay;
+
+    wire w_rx_busy= (curr_state != IDLE);
+    wire r_rx_done_edge = ((~r_rx_done_delay) & r_rx_done);
+    
+    assign data_o = memory;
+    assign rx_done = r_rx_done_edge;
+    assign rx_busy = w_rx_busy;
+    assign baud = (baud_cnt == ((BAUDRATE_COUNT) - 1)) ? 1'b1 : 1'b0;
+
+    // BAUDRATE part //
+    // Determine baud count
+    always @(posedge clk or negedge rstn) begin
+        if(!rstn) begin
+            baud_cnt <= 0;
+        end
+        else begin
+            if((baud_cnt == ((BAUDRATE_COUNT) - 1))) begin
+                baud_cnt <= 0;
+            end
+            else if (curr_state != IDLE) begin
+                baud_cnt <= baud_cnt + 1;
+            end
+        end
+    end
+
+    // UART RX part //
+    // Determine state
+    always @(posedge clk or negedge rstn) begin
+        if(!rstn) begin
+            curr_state <= IDLE;
+        end
+        else begin
+            curr_state <= next_state;
+        end
+    end
+    always @(*) begin
+        next_state = curr_state;
+        case(curr_state)
+            IDLE:
+                begin
+                    if(!rx) begin
+                        next_state = START;
+                    end
+                end
+            START:
+                begin
+                    if(baud) begin
+                        next_state = DATA;
+                    end
+                end
+            DATA:
+                begin
+                    if((&rx_cnt) && baud) begin
+                        next_state = STOP;
+                    end
+                end
+            STOP:
+                begin
+                    if(baud) begin
+                        next_state = IDLE;
+                    end
+                end
+        endcase
+    end
+    // Determine rx data
+    always @(posedge clk or negedge rstn) begin
+        if(!rstn) begin
+            memory <= 0;
+        end
+        else begin
+            if(curr_state == DATA) begin
+                memory[rx_cnt] <= rx;
+            end
+        end
+    end
+    // Determine rx count
+    always @(posedge clk or negedge rstn) begin
+        if(!rstn) begin
+            rx_cnt <= 0;
+        end 
+        else begin
+            if((curr_state == DATA) && baud) begin
+                rx_cnt <= rx_cnt + 1;
+            end
+            else if (curr_state != DATA) begin
+                rx_cnt <= 0; 
+            end
+        end
+    end
+    // Determine done
+    always @(*) begin
+        if(curr_state == STOP) begin
+            r_rx_done = 1;
+        end
+        else begin
+            r_rx_done = 0;
+        end
+    end
+    always @(posedge clk or negedge rstn) begin
+        if(!rstn) begin
+            r_rx_done_delay <= 0;
+        end
+        else begin
+            r_rx_done_delay <= r_rx_done;
+        end
+    end
+endmodule
+*/
+
 module UART_TX#(
     parameter DATA_WIDTH = 8,
     parameter DATA_WIDTH_WIDTH = $clog2(DATA_WIDTH),
@@ -10,7 +149,6 @@ module UART_TX#(
     input rstn,
     input start,
     input [7:0] data_i,
-    //input [2:0] ck_data,
     output wire tx,
     output wire tx_busy,
     output wire tx_done
@@ -21,13 +159,6 @@ module UART_TX#(
     localparam DATA = 2'b10;
     localparam STOP = 2'b11;
     
-    //wire [7:0] data_i;
-    /* For varification
-    assign data_i = (ck_data == 3'b100) ? 8'h65 : 
-                              (ck_data == 3'b010 ? 8'h66 : 
-                              (ck_data == 3'b001 ? 8'h67 : 8'h0)); */
-    
-    
     reg [1:0] curr_state;
     reg [1:0] next_state;
     reg [2:0] tx_cnt;
@@ -37,11 +168,12 @@ module UART_TX#(
     reg r_tx_done;
     reg r_tx_busy;
     reg r_tx;
-
+    
+    wire r_tx_done_edge = r_tx_done;
     wire w_tx_busy = (curr_state != IDLE);
     
     assign tx_busy = w_tx_busy;
-    assign tx_done = r_tx_done;
+    assign tx_done = r_tx_done_edge;
     assign tx = r_tx;
     assign baud = (baud_cnt == ((BAUDRATE_COUNT) - 1)) ? 1'b1 : 1'b0;
     
@@ -132,38 +264,29 @@ module UART_TX#(
         case(curr_state)
             IDLE:
                 begin
-                   r_tx = 1;
+                    r_tx = 1;
                 end
             START:
                 begin
-                        r_tx = 0;
+                    r_tx = 0;
                 end
             DATA:
                 begin
-                        r_tx = memory[tx_cnt];
+                    r_tx = memory[tx_cnt];
                 end
             STOP:
                 begin
-                        r_tx = 1;
+                    r_tx = 1;
                 end
         endcase
     end
     // Determine tx done
-    always @(posedge clk or negedge rstn) begin
-        if(!rstn) begin
-            r_tx_done <= 0;
-        end
-        else begin
-            case(curr_state)
-                IDLE:
-                    begin
-                        r_tx_done <= 0;
-                    end
-                STOP:
-                    begin
-                        r_tx_done <= 1;
-                    end
-            endcase
-        end
-    end
+       always @(posedge clk or negedge rstn) begin 
+           if(!rstn) begin 
+           r_tx_done <= 0;
+         end
+            else begin
+                r_tx_done <= (curr_state == STOP && next_state == IDLE);
+            end
+         end
 endmodule
