@@ -12,3 +12,7 @@ always 문이 중복되었으니, 하나로 합쳐야합니다.
 
 ### Synthesis
 ![image](https://github.com/user-attachments/assets/7e8571cf-d3ae-4505-9994-5e880abf56fc)
+
+### Result in Teraterm
+![image](https://github.com/user-attachments/assets/ba0449ae-6d17-4137-a312-1ba2cffda425)
+TX data가 깨지는 것을 볼 수 있는데 해당 부분을 다시 검토해봐야겠습니다.
