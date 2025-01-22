@@ -18,20 +18,23 @@ module TX_WRITE#(
     wire not_tx_busy = ~tx_busy;
     wire tx_start = ((not_fifo_empty) && (not_tx_busy));
     wire n_wr_en;
-    reg n_wr_en_dly;
+    reg n_wr_en_dlyx1;
+    reg n_wr_en_dlyx2;
     wire n_wr_en_edge;
-
+    wire fifo_full;
+    
     always @(posedge clk or negedge rstn) begin
         if(!rstn) begin
-            n_wr_en_dly <= 0;
+            n_wr_en_dlyx1 <= 0;
+            n_wr_en_dlyx2 <= 0;
         end
         else begin
-            n_wr_en_dly <= n_wr_en;
+            n_wr_en_dlyx1 <= n_wr_en;
+            n_wr_en_dlyx2 <= n_wr_en_dlyx1;
         end
     end
 
-    assign n_wr_en_edge = ((~n_wr_en_dly) & n_wr_en);
-
+    //assign n_wr_en_edge = ((~n_wr_en_dly) & n_wr_en);
     WRITE_BUFF#(
         .DATA_WIDTH                 (DATA_WIDTH     )
     )TX0(
@@ -41,7 +44,7 @@ module TX_WRITE#(
         .data_o                     (n_buff_fifo    ),
         .valid_in                   (valid_in       ),
         .ready_in                   (ready_in       ),
-        .ready_out                  (not_fifo_empty ),
+        .ready_out                  (!fifo_full     ),
         .valid_out                  (n_wr_en        )
     );
 
@@ -51,11 +54,11 @@ module TX_WRITE#(
     )TX1(
         .clk                        (clk            ),
         .rstn                       (rstn           ),
-        .wr_en                      (n_wr_en_edge   ),
+        .wr_en                      (n_wr_en_dlyx2   ),
         .rd_en                      (tx_start       ),
         .wr_data                    (n_buff_fifo    ),
         .rd_data                    (n_fifo_uart    ),
-        .full                       (/* nc */       ),
+        .full                       (fifo_full      ),
         .empty                      (fifo_empty     )
     );
 
