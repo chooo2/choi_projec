@@ -6,7 +6,7 @@ always 문이 중복되었으니, 하나로 합쳐야합니다.
 ### Simulation Results
 ![image](https://github.com/user-attachments/assets/8ed9da72-ae76-443c-a157-eb3d71073da0)
 
-## 추가 test(baud level)
+## 추가 test(board level)
 ### Elabrated Desgin
 ![image](https://github.com/user-attachments/assets/93ae478f-7e5d-469b-b3cf-fdce98f85b8e)
 
