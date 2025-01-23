@@ -1,0 +1,176 @@
+module APB_SLAVEx#(
+    parameter ADDR_WIDTH = 32,
+    parameter DATA_WIDTH = 8,
+    parameter PTR_WIDTH = $clog2(ADDR_WIDTH)
+)(
+    // & MASTER
+    input                           pclk,
+    input                           prstn,
+    input [ADDR_WIDTH-1:0]          paddr,
+    input                           penable,
+    input                           pselx,
+    input                           pwrite,
+    input [DATA_WIDTH-1:0]          pwdata,
+    output wire                     pready,
+    output wire [DATA_WIDTH-1:0]    prdata,
+    output wire                     pslverr,
+    // & SLAVE - UART rx
+    input                           rx_valid,
+    output wire                     rx_ready,
+    input [DATA_WIDTH-1:0]          rx_data,
+    // & SLAVE - UART tx
+    input                           tx_ready,
+    output wire                     tx_valid,
+    output wire [DATA_WIDTH-1:0]    tx_data
+);
+    // Dertmine parameter
+    reg [DATA_WIDTH-1:0] memory [3:0];
+    reg r_pready;
+    reg [DATA_WIDTH-1:0] rd_buff;
+    reg r_rx_ready;
+    reg r_tx_valid;
+    reg [DATA_WIDTH-1:0] r_tx_data;
+    reg [PTR_WIDTH:0] rx_ptr;
+    reg [PTR_WIDTH:0] tx_ptr;
+    reg apb_memory_empty;
+    reg [DATA_WIDTH-1:0] wr_buff;
+
+    assign pready = r_pready;
+    assign prdata = rd_buff;
+    assign pslverr = 1'b1;  // default for a while
+    assign rx_ready = r_rx_ready;
+    assign tx_valid = r_tx_valid;
+    assign tx_data = r_tx_data;
+
+    // Opertion with Master //
+    // Determine Ready
+    always @(*) begin
+        if(pselx) begin
+            r_pready = penable;
+        end
+        else begin
+            r_pready = 0;
+        end
+    end
+    // Write operation
+    always @(*) begin
+        wr_buff = pwdata;
+    end
+    always @(posedge pclk) begin
+        if((pwrite) && (r_pready)) begin
+//            memory[paddr] <= wr_buff;
+        end
+    end
+    // Read operation
+    always @(posedge pclk or negedge prstn) begin
+        if(!prstn) begin
+            rd_buff <= 0;
+        end
+        else begin
+            if((!pwrite) && (r_pready)) begin
+//                rd_buff <= memory[paddr];
+            end
+        end
+    end
+    
+// UART
+    // Operation with UART //
+    // Determine the state in which Uart Rx data can be received
+    always @(posedge pclk or negedge prstn) begin
+        if(!prstn) begin
+            r_rx_ready <= 0;
+        end
+        else begin
+            if((rx_valid) && (!pselx)) begin
+                r_rx_ready <= 1;
+            end
+            else begin
+                r_rx_ready <= 0;
+            end
+        end
+    end
+    reg r_rx_ready_delay;
+    wire r_rx_ready_edge;
+    always @(posedge pclk or negedge prstn) begin
+        if(!prstn) begin
+            r_rx_ready_delay <= 0;
+        end
+        else begin
+            r_rx_ready_delay <= r_rx_ready;
+        end
+    end
+    assign r_rx_ready_edge = ((~r_rx_ready) && (r_rx_ready_delay));
+    // Determine UART RX data storage location: FIFO.rx_ptr
+    always @(posedge pclk or negedge prstn) begin
+        if(!prstn) begin
+            rx_ptr <= 0;
+        end
+        else begin
+            if(r_rx_ready_edge) begin
+                rx_ptr <= rx_ptr + 1;
+            end
+            else begin
+                rx_ptr <= rx_ptr;
+            end
+        end
+    end
+    // Recieve Rx data
+    always @(*) begin
+        if((!pselx) && (r_rx_ready_edge)) begin
+            memory[rx_ptr[PTR_WIDTH-1:0]] = rx_data;
+        end
+    end
+    // Determine the state in which Uart tx data can be transmitted
+    reg [3:0] stable_term;
+    always @(posedge pclk or negedge prstn) begin
+        if(!prstn) begin
+            stable_term <= 0;
+        end
+        else begin
+            if((&stable_term) || (!tx_ready)) begin
+                stable_term <= 0;
+            end
+            else begin
+                stable_term <= stable_term + 1;
+            end
+        end
+    end
+    always @(posedge pclk or negedge prstn) begin
+        if(!prstn) begin
+            r_tx_valid <= 0;
+        end
+        else begin
+            if((!pselx) && (!apb_memory_empty) && (&stable_term)) begin
+                r_tx_valid <= 1;
+            end
+            else begin
+                r_tx_valid <= 0;
+            end
+        end
+    end
+    // Determine UART TX data storage location: FIFO
+    always @(posedge pclk or negedge prstn) begin
+        if(!prstn) begin
+            tx_ptr <= 0;
+        end
+        else begin
+            if((r_tx_valid) && (!pselx) && (!apb_memory_empty)) begin
+                tx_ptr <= tx_ptr + 1;
+                r_tx_data <= memory[tx_ptr[PTR_WIDTH-1:0]];
+            end
+            else begin
+                tx_ptr <= tx_ptr;
+            end
+        end
+    end
+    // Determine memoey state
+    always @(*) begin
+        if(!(rx_ptr == tx_ptr)) begin
+            apb_memory_empty = 0;
+        end
+        else begin
+            apb_memory_empty = 1;
+        end
+    end
+
+endmodule
