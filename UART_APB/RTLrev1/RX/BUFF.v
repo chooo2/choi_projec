@@ -73,7 +73,7 @@ module BUFF#(
     end
     always @(posedge clk) begin
         if(rd_en && (!empty)) begin
-            rd_data = memory[rd_ptr[PTR_WIDTH-1:0]];
+            rd_data <= memory[rd_ptr[PTR_WIDTH-1:0]];
         end
     end
 
