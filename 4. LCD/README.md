@@ -10,6 +10,7 @@ Vsync는 Front : Acitve : Back = 3 : 10 : 3 의 비를 가지도록 구현되었
 
 ## Block Diagram
 ![image](https://github.com/user-attachments/assets/f47aa167-d2bb-4b8b-bc3c-c4d5c750f2b8)
+
 위 사진에서 중앙의 Activation 영역이 실제 영상이 출력되는 구간으로, 
 V sync와 H sync 모두 Acivation 상태에서 출력됩니다.
 
